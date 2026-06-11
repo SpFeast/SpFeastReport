@@ -1,0 +1,70 @@
+name: SpFeastReport
+version: 1.0.0
+main: cn.spfeast.spfeastreport.SpFeastReportPlugin
+api-version: "1.21"
+author: hzj
+
+commands:
+  report:
+    description: Open the report menu
+    usage: /report [player]
+    permission: spfeastreport.command.report
+    permission-message: You do not have permission to use this command.
+  reportcheck:
+    description: Open the report check menu
+    usage: /reportcheck
+    permission: spfeastreport.command.reportcheck
+    permission-message: You do not have permission to use this command.
+
+permissions:
+  spfeastreport.*:
+    description: Grants all SpFeastReport permissions
+    default: op
+    children:
+      spfeastreport.command.*: true
+      spfeastreport.review.*: true
+
+  spfeastreport.command.*:
+    description: Grants all SpFeastReport command permissions
+    default: op
+    children:
+      spfeastreport.command.report: true
+      spfeastreport.command.reportcheck: true
+      spfeastreport.command.wdr: true
+      spfeastreport.command.wdreport: true
+
+  spfeastreport.review.*:
+    description: Grants all report review permissions
+    default: false
+    children:
+      spfeastreport.review.view: true
+      spfeastreport.review.teleport: true
+      spfeastreport.review.action: true
+
+  spfeastreport.command.report:
+    description: Allows the player to use /report
+    default: false
+
+  spfeastreport.command.reportcheck:
+    description: Allows the player to use /reportcheck
+    default: op
+
+  spfeastreport.command.wdr:
+    description: Reserved permission for future /wdr
+    default: false
+
+  spfeastreport.command.wdreport:
+    description: Reserved permission for future /wdreport
+    default: false
+
+  spfeastreport.review.view:
+    description: Allows opening and viewing report review menus
+    default: false
+
+  spfeastreport.review.teleport:
+    description: Allows teleporting to saved report locations
+    default: false
+
+  spfeastreport.review.action:
+    description: Allows using review actions like no error and ban
+    default: false

@@ -1,5 +1,5 @@
 name: SpFeastReport
-version: 1.0.0
+version: ${version}
 main: cn.spfeast.spfeastreport.SpFeastReportPlugin
 api-version: "1.21"
 author: hzj

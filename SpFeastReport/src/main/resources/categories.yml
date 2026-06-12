@@ -1,0 +1,189 @@
+categories:
+  chat_abuse_scam:
+    ban:
+      template_key: ''
+      duration: ''
+      reason: ''
+    punishment:
+      mode: MUTE
+      key: minorchat
+      window_days: 30
+      durations:
+        - 7d
+        - 30d
+        - 90d
+        - 180d
+        - 360d
+      severity_boost_if_max_duration_at_least: ''
+    title: Chat Abuse/Scam
+    slot: 20
+    material: WRITABLE_BOOK
+    enabled: true
+    save_location: false
+    record_file: reports/chat_abuse_scam.yml
+    id_prefix: CAS
+  cheating_hacking:
+    ban:
+      template_key: ''
+      duration: ''
+      reason: ''
+    punishment:
+      mode: BAN
+      key: cheating
+      window_days: 30
+      durations:
+        - 7d
+        - 30d
+        - 90d
+        - 180d
+        - 360d
+      severity_boost_if_max_duration_at_least: ''
+    title: Cheating (Hacking)
+    slot: 21
+    material: DIAMOND_SWORD
+    enabled: true
+    save_location: true
+    record_file: reports/cheating_hacking.yml
+    id_prefix: CH
+  bad_name:
+    ban:
+      template_key: ''
+      duration: ''
+      reason: ''
+    punishment:
+      mode: BAN
+      key: badname
+      window_days: 30
+      durations:
+        - 7d
+        - 30d
+        - 90d
+        - 180d
+        - 360d
+      severity_boost_if_max_duration_at_least: ''
+    title: Bad Name
+    slot: 22
+    material: NAME_TAG
+    enabled: true
+    save_location: false
+    record_file: reports/bad_name.yml
+    id_prefix: BN
+  guild_name_tag:
+    ban:
+      template_key: ''
+      duration: ''
+      reason: ''
+    punishment:
+      mode: BAN
+      key: badname
+      window_days: 30
+      durations:
+        - 7d
+        - 30d
+        - 90d
+        - 180d
+        - 360d
+      severity_boost_if_max_duration_at_least: ''
+    title: Guild Name/Tag
+    slot: 23
+    material: GREEN_BANNER
+    enabled: false
+    save_location: false
+    record_file: reports/guild_name_tag.yml
+    id_prefix: GNT
+  cross_teaming:
+    ban:
+      template_key: ''
+      duration: ''
+      reason: ''
+    punishment:
+      mode: BAN
+      key: cross_teaming
+      window_days: 30
+      durations:
+        - 7d
+        - 30d
+        - 90d
+        - 180d
+        - 360d
+      severity_boost_if_max_duration_at_least: ''
+    title: Cross Teaming
+    slot: 24
+    material: COMPASS
+    enabled: true
+    save_location: true
+    record_file: reports/cross_teaming.yml
+    id_prefix: CT
+  bad_skin_cape:
+    ban:
+      template_key: ''
+      duration: ''
+      reason: ''
+    punishment:
+      mode: BAN
+      key: badskin
+      window_days: 30
+      durations:
+        - 7d
+        - 30d
+        - 90d
+        - 180d
+        - 360d
+      severity_boost_if_max_duration_at_least: ''
+    title: Bad Skin/Cape
+    slot: 29
+    material: LEATHER
+    enabled: true
+    save_location: false
+    record_file: reports/bad_skin_cape.yml
+    id_prefix: BSC
+  bad_pet_name:
+    ban:
+      template_key: ''
+      duration: ''
+      reason: ''
+    punishment:
+      mode: BAN
+      key: badname
+      window_days: 30
+      durations:
+        - 7d
+        - 30d
+        - 90d
+        - 180d
+        - 360d
+      severity_boost_if_max_duration_at_least: ''
+    title: Bad Pet Name
+    slot: 30
+    material: COW_SPAWN_EGG
+    enabled: false
+    save_location: false
+    record_file: reports/bad_pet_name.yml
+    id_prefix: BPN
+  stats_boosting:
+    ban:
+      template_key: ''
+      duration: ''
+      reason: ''
+    punishment:
+      mode: BAN
+      key: boosting
+      window_days: 30
+      durations:
+        - 7d
+        - 30d
+        - 90d
+        - 180d
+        - 360d
+      severity_boost_if_max_duration_at_least: ''
+    title: Stats Boosting
+    slot: 31
+    material: TNT
+    enabled: true
+    save_location: true
+    record_file: reports/stats_boosting.yml
+    id_prefix: SB
+meta:
+  file_format: 2
+  updated_at_iso: '2026-06-12T17:40:08.023013100Z'
+  updated_at_display: '2026-06-13 01:40:08'

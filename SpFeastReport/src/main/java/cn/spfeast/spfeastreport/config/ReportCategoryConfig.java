@@ -39,6 +39,10 @@ public final class ReportCategoryConfig {
             plugin.getLogger().warning("Failed to create plugin data folder.");
         }
 
+        if (!configFile.exists()) {
+            plugin.saveResource(CONFIG_FILE_NAME, false);
+        }
+
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(configFile);
         settingsByKey.clear();
 
@@ -66,7 +70,7 @@ public final class ReportCategoryConfig {
             yaml.addDefault(basePath + ".ban.duration", "");
             yaml.addDefault(basePath + ".ban.reason", "");
             yaml.addDefault(basePath + ".punishment.mode", defaultPunishmentMode(item.actionKey()));
-            yaml.addDefault(basePath + ".punishment.key", "");
+            yaml.addDefault(basePath + ".punishment.key", defaultPunishmentKey(item.actionKey()));
             yaml.addDefault(basePath + ".punishment.window_days", 30);
             yaml.addDefault(basePath + ".punishment.durations", List.of("7d", "30d", "90d", "180d", "360d"));
             yaml.addDefault(basePath + ".punishment.severity_boost_if_max_duration_at_least", "");
@@ -206,5 +210,17 @@ public final class ReportCategoryConfig {
             return upper;
         }
         return defaultPunishmentMode(actionKey);
+    }
+
+    private static @NotNull String defaultPunishmentKey(@NotNull String actionKey) {
+        return switch (actionKey) {
+            case "chat_abuse_scam" -> "minorchat";
+            case "cheating_hacking" -> "cheating";
+            case "bad_name", "guild_name_tag", "bad_pet_name" -> "badname";
+            case "cross_teaming" -> "cross_teaming";
+            case "bad_skin_cape" -> "badskin";
+            case "stats_boosting" -> "boosting";
+            default -> "";
+        };
     }
 }

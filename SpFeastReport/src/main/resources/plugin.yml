@@ -3,6 +3,7 @@ version: 1.0.0
 main: cn.spfeast.spfeastreport.SpFeastReportPlugin
 api-version: "1.21"
 author: hzj
+softdepend: [spfeastApi]
 
 commands:
   report:

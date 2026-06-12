@@ -221,6 +221,92 @@ public final class ReportStorage {
         return ReportUpdateResult.NOT_FOUND;
     }
 
+    public synchronized @NotNull ReportUpdateResult markReportBanned(
+            @NotNull ReportMenuLayout.ReportMainItem item,
+            @NotNull String reportId,
+            @NotNull Player actor,
+            @NotNull String referenceId
+    ) throws IOException {
+        if (item.type() != ReportMenuLayout.ReportMainItemType.REASON) {
+            return ReportUpdateResult.NOT_FOUND;
+        }
+
+        ReportCategoryConfig.CategorySettings settings = plugin.getCategoryConfig().getSettings(item);
+        File categoryFile = new File(plugin.getDataFolder(), settings.recordFile());
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(categoryFile);
+        List<Map<String, Object>> reports = readNormalizedReports(yaml, settings);
+
+        for (Map<String, Object> report : reports) {
+            if (!reportId.equalsIgnoreCase(stringValue(report.get("report_id")))) {
+                continue;
+            }
+
+            Map<String, Object> review = nestedSection(report.get("review"));
+            String currentStatus = stringValue(review.get("status"));
+            if ("banned".equalsIgnoreCase(currentStatus)) {
+                return ReportUpdateResult.ALREADY_MARKED;
+            }
+
+            Instant now = Instant.now();
+            review.put("status", "banned");
+            review.put("actor_name", actor.getName());
+            review.put("actor_uuid", actor.getUniqueId().toString());
+            review.put("reviewed_at_iso", now.toString());
+            review.put("reviewed_at_display", DISPLAY_TIME_FORMAT.format(now));
+            review.put("reference_id", referenceId);
+            report.put("review", review);
+
+            writeCategoryFile(yaml, settings, reports, categoryFile, now);
+            rebuildIndex();
+            return ReportUpdateResult.UPDATED;
+        }
+
+        return ReportUpdateResult.NOT_FOUND;
+    }
+
+    public synchronized @NotNull ReportUpdateResult markReportMuted(
+            @NotNull ReportMenuLayout.ReportMainItem item,
+            @NotNull String reportId,
+            @NotNull Player actor,
+            @NotNull String referenceId
+    ) throws IOException {
+        if (item.type() != ReportMenuLayout.ReportMainItemType.REASON) {
+            return ReportUpdateResult.NOT_FOUND;
+        }
+
+        ReportCategoryConfig.CategorySettings settings = plugin.getCategoryConfig().getSettings(item);
+        File categoryFile = new File(plugin.getDataFolder(), settings.recordFile());
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(categoryFile);
+        List<Map<String, Object>> reports = readNormalizedReports(yaml, settings);
+
+        for (Map<String, Object> report : reports) {
+            if (!reportId.equalsIgnoreCase(stringValue(report.get("report_id")))) {
+                continue;
+            }
+
+            Map<String, Object> review = nestedSection(report.get("review"));
+            String currentStatus = stringValue(review.get("status"));
+            if ("muted".equalsIgnoreCase(currentStatus)) {
+                return ReportUpdateResult.ALREADY_MARKED;
+            }
+
+            Instant now = Instant.now();
+            review.put("status", "muted");
+            review.put("actor_name", actor.getName());
+            review.put("actor_uuid", actor.getUniqueId().toString());
+            review.put("reviewed_at_iso", now.toString());
+            review.put("reviewed_at_display", DISPLAY_TIME_FORMAT.format(now));
+            review.put("reference_id", referenceId);
+            report.put("review", review);
+
+            writeCategoryFile(yaml, settings, reports, categoryFile, now);
+            rebuildIndex();
+            return ReportUpdateResult.UPDATED;
+        }
+
+        return ReportUpdateResult.NOT_FOUND;
+    }
+
     private void migrateCategoryFiles() {
         for (ReportMenuLayout.ReportMainItem item : ReportMenuLayout.ReportMainItem.values()) {
             if (item.type() != ReportMenuLayout.ReportMainItemType.REASON) {
@@ -475,6 +561,10 @@ public final class ReportStorage {
         public boolean isBanned() {
             return "banned".equals(normalizedReviewStatus());
         }
+
+        public boolean isMuted() {
+            return "muted".equals(normalizedReviewStatus());
+        }
     }
 
     public enum ReportUpdateResult {
@@ -626,7 +716,7 @@ public final class ReportStorage {
         for (Map<String, Object> report : reports) {
             Map<String, Object> review = nestedSection(report.get("review"));
             String status = stringValue(review.get("status"));
-            if ("no_error".equalsIgnoreCase(status)) {
+            if (status != null && !status.isBlank() && !"pending".equalsIgnoreCase(status)) {
                 continue;
             }
             filtered.add(report);

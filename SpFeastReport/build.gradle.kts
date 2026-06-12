@@ -16,6 +16,7 @@ repositories {
 dependencies {
 // 1.21 核心依赖：使用大版本最初版编译，保证 1.21 ~ 1.21.11+ 全版本完美向下兼容
     compileOnly("org.purpurmc.purpur:purpur-api:1.21-R0.1-SNAPSHOT")
+    compileOnly(fileTree("libs") { include("spfeastapi-*.jar") })
 }
 
 java {

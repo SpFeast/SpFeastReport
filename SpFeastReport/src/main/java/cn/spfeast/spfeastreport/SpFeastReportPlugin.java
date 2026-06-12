@@ -5,10 +5,13 @@ import cn.spfeast.spfeastreport.commands.ReportCheckCommand;
 import cn.spfeast.spfeastreport.config.ReportCategoryConfig;
 import cn.spfeast.spfeastreport.gui.ReportCheckMenuService;
 import cn.spfeast.spfeastreport.gui.ReportMenuService;
+import cn.spfeast.spfeastreport.integration.SpfeastApiBridge;
+import cn.spfeast.spfeastreport.integration.SpfeastBansHistory;
 import cn.spfeast.spfeastreport.listeners.ReportCheckMenuListener;
 import cn.spfeast.spfeastreport.listeners.ReportMenuListener;
 import cn.spfeast.spfeastreport.storage.ReportStorage;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
@@ -18,6 +21,8 @@ public final class SpFeastReportPlugin extends JavaPlugin {
     private ReportMenuService reportMenuService;
     private ReportCheckMenuService reportCheckMenuService;
     private ReportStorage reportStorage;
+    private SpfeastApiBridge spfeastApiBridge;
+    private SpfeastBansHistory spfeastBansHistory;
 
     @Override
     public void onEnable() {
@@ -25,6 +30,8 @@ public final class SpFeastReportPlugin extends JavaPlugin {
         reportMenuService = new ReportMenuService(this);
         reportCheckMenuService = new ReportCheckMenuService(this);
         reportStorage = new ReportStorage(this);
+        spfeastApiBridge = new SpfeastApiBridge(this);
+        spfeastBansHistory = new SpfeastBansHistory(this);
         registerCommands();
         getServer().getPluginManager().registerEvents(new ReportMenuListener(this), this);
         getServer().getPluginManager().registerEvents(new ReportCheckMenuListener(this), this);
@@ -64,5 +71,30 @@ public final class SpFeastReportPlugin extends JavaPlugin {
 
     public ReportCheckMenuService getReportCheckMenuService() {
         return reportCheckMenuService;
+    }
+
+    public boolean isSpfeastApiAvailable() {
+        return spfeastApiBridge != null && spfeastApiBridge.isAvailable();
+    }
+
+    public boolean isSpfeastBansAvailable() {
+        Plugin plugin = getServer().getPluginManager().getPlugin("SpFeastBans");
+        if (plugin != null && plugin.isEnabled()) {
+            return true;
+        }
+        plugin = getServer().getPluginManager().getPlugin("spfeastbans");
+        if (plugin != null && plugin.isEnabled()) {
+            return true;
+        }
+        plugin = getServer().getPluginManager().getPlugin("SpfeastBans");
+        return plugin != null && plugin.isEnabled();
+    }
+
+    public SpfeastApiBridge getSpfeastApiBridge() {
+        return spfeastApiBridge;
+    }
+
+    public SpfeastBansHistory getSpfeastBansHistory() {
+        return spfeastBansHistory;
     }
 }

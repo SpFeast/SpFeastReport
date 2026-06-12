@@ -61,6 +61,37 @@ public final class ReportCheckMenuHolder implements InventoryHolder {
         this.inventory = Bukkit.createInventory(this, ReportCheckMenuLayout.DETAIL_MENU_SIZE, page.title(scope, category, currentPage, totalPages));
     }
 
+    public static @NotNull ReportCheckMenuHolder punishment(
+            @NotNull RecordScope scope,
+            @NotNull ReportMenuLayout.ReportMainItem category,
+            int currentPage,
+            int totalPages,
+            @NotNull String reportId
+    ) {
+        return new ReportCheckMenuHolder(MenuPage.PUNISHMENT, scope, category, currentPage, totalPages, reportId);
+    }
+
+    private ReportCheckMenuHolder(
+            @NotNull MenuPage page,
+            @NotNull RecordScope scope,
+            @NotNull ReportMenuLayout.ReportMainItem category,
+            int currentPage,
+            int totalPages,
+            @NotNull String reportId
+    ) {
+        this.page = page;
+        this.scope = scope;
+        this.category = category;
+        this.currentPage = currentPage;
+        this.totalPages = totalPages;
+        this.reportId = reportId;
+        this.inventory = Bukkit.createInventory(
+                this,
+                page == MenuPage.PUNISHMENT ? ReportCheckMenuLayout.PUNISHMENT_MENU_SIZE : ReportCheckMenuLayout.DETAIL_MENU_SIZE,
+                page.title(scope, category, currentPage, totalPages)
+        );
+    }
+
     public @NotNull MenuPage getPage() {
         return page;
     }
@@ -122,6 +153,17 @@ public final class ReportCheckMenuHolder implements InventoryHolder {
                     int totalPages
             ) {
                 return ReportCheckMenuLayout.reportDetailTitle(scope, category);
+            }
+        },
+        PUNISHMENT {
+            @Override
+            @NotNull Component title(
+                    @NotNull RecordScope scope,
+                    @Nullable ReportMenuLayout.ReportMainItem category,
+                    int currentPage,
+                    int totalPages
+            ) {
+                return ReportCheckMenuLayout.punishmentMenuTitle(category);
             }
         };
 

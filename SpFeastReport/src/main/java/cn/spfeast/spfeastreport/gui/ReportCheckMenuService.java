@@ -3,6 +3,7 @@ package cn.spfeast.spfeastreport.gui;
 import cn.spfeast.spfeastreport.SpFeastReportPlugin;
 import cn.spfeast.spfeastreport.permission.PermissionNodes;
 import cn.spfeast.spfeastreport.storage.ReportStorage;
+import cn.spfeast.spfeastreport.util.DurationText;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -91,8 +92,51 @@ public final class ReportCheckMenuService {
                 report,
                 viewer.hasPermission(PermissionNodes.REVIEW_TELEPORT),
                 viewer.hasPermission(PermissionNodes.REVIEW_ACTION),
-                viewer.hasPermission(PermissionNodes.REVIEW_ACTION)
+                viewer.hasPermission(PermissionNodes.REVIEW_ACTION),
+                plugin.isSpfeastApiAvailable() && plugin.isSpfeastBansAvailable()
         );
+        viewer.openInventory(holder.getInventory());
+        return true;
+    }
+
+    public boolean openPunishmentMenu(
+            @NotNull Player viewer,
+            @NotNull ReportMenuLayout.ReportMainItem category,
+            @NotNull ReportCheckMenuHolder.RecordScope scope,
+            int sourcePage,
+            int totalPages,
+            @NotNull ReportStorage.ReportView report
+    ) {
+        var settings = plugin.getCategoryConfig().getSettings(category);
+        java.util.List<String> durations = settings.punishmentDurations();
+        if (durations == null || durations.isEmpty()) {
+            durations = java.util.List.of("7d", "30d", "90d", "180d", "360d");
+        }
+
+        boolean chatPunishment = category.actionKey() != null
+                && category.actionKey().toLowerCase(java.util.Locale.ROOT).startsWith("chat_");
+        int windowDays = settings.punishmentWindowDays();
+        var details = chatPunishment
+                ? plugin.getSpfeastBansHistory().getMuteDetails(java.util.UUID.fromString(report.targetUuid()), windowDays, 5)
+                : plugin.getSpfeastBansHistory().getBanDetails(java.util.UUID.fromString(report.targetUuid()), windowDays, 5);
+
+        int boost = 0;
+        String boostThresholdText = settings.severityBoostIfMaxDurationAtLeast();
+        if (boostThresholdText != null) {
+            Long thresholdMillis = DurationText.parseDurationMillis(boostThresholdText);
+            if (thresholdMillis != null && thresholdMillis > 0L && details.maxDurationMillis() >= thresholdMillis) {
+                boost = 1;
+            }
+        }
+
+        String recommended = null;
+        if (!durations.isEmpty()) {
+            int index = Math.min(details.count() + boost, durations.size() - 1);
+            recommended = durations.get(index);
+        }
+
+        ReportCheckMenuHolder holder = ReportCheckMenuHolder.punishment(scope, category, sourcePage, totalPages, report.reportId());
+        ReportCheckMenuLayout.populatePunishmentMenu(holder.getInventory(), report, settings, durations, recommended, details);
         viewer.openInventory(holder.getInventory());
         return true;
     }

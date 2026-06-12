@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -60,12 +62,44 @@ public final class ReportCategoryConfig {
             yaml.addDefault(basePath + ".save_location", item.saveLocation());
             yaml.addDefault(basePath + ".record_file", defaultRecordFile);
             yaml.addDefault(basePath + ".id_prefix", defaultPrefix(item.title()));
+            yaml.addDefault(basePath + ".ban.template_key", "");
+            yaml.addDefault(basePath + ".ban.duration", "");
+            yaml.addDefault(basePath + ".ban.reason", "");
+            yaml.addDefault(basePath + ".punishment.mode", defaultPunishmentMode(item.actionKey()));
+            yaml.addDefault(basePath + ".punishment.key", "");
+            yaml.addDefault(basePath + ".punishment.window_days", 30);
+            yaml.addDefault(basePath + ".punishment.durations", List.of("7d", "30d", "90d", "180d", "360d"));
+            yaml.addDefault(basePath + ".punishment.severity_boost_if_max_duration_at_least", "");
 
             String title = yaml.getString(basePath + ".title", item.title());
             boolean enabled = yaml.getBoolean(basePath + ".enabled", item.enabled());
             boolean saveLocation = yaml.getBoolean(basePath + ".save_location", item.saveLocation());
             String recordFile = yaml.getString(basePath + ".record_file", defaultRecordFile);
             String idPrefix = yaml.getString(basePath + ".id_prefix", defaultPrefix(item.title()));
+            String banTemplateKey = yaml.getString(basePath + ".ban.template_key", "");
+            String banDuration = yaml.getString(basePath + ".ban.duration", "");
+            String banReason = yaml.getString(basePath + ".ban.reason", "");
+            String punishmentMode = yaml.getString(basePath + ".punishment.mode", defaultPunishmentMode(item.actionKey()));
+            String punishmentKey = yaml.getString(basePath + ".punishment.key", "");
+            int punishmentWindowDays = Math.max(1, yaml.getInt(basePath + ".punishment.window_days", 30));
+            List<String> punishmentDurations = yaml.getStringList(basePath + ".punishment.durations");
+            String severityBoost = yaml.getString(basePath + ".punishment.severity_boost_if_max_duration_at_least", "");
+
+            String normalizedMode = normalizeMode(punishmentMode, item.actionKey());
+            String resolvedKey = blankToNull(punishmentKey);
+            List<String> resolvedDurations = new ArrayList<>(punishmentDurations);
+
+            if ("BAN".equals(normalizedMode)) {
+                if (resolvedKey == null) {
+                    resolvedKey = blankToNull(banTemplateKey);
+                }
+                if (resolvedDurations.isEmpty()) {
+                    String legacyDuration = blankToNull(banDuration);
+                    if (legacyDuration != null) {
+                        resolvedDurations = List.of(legacyDuration);
+                    }
+                }
+            }
 
             settingsByKey.put(
                     item.actionKey(),
@@ -75,7 +109,13 @@ public final class ReportCategoryConfig {
                             enabled,
                             saveLocation,
                             recordFile,
-                            idPrefix
+                            idPrefix,
+                            normalizedMode,
+                            resolvedKey,
+                            punishmentWindowDays,
+                            List.copyOf(resolvedDurations),
+                            blankToNull(severityBoost),
+                            blankToNull(banReason)
                     )
             );
         }
@@ -113,7 +153,13 @@ public final class ReportCategoryConfig {
             boolean enabled,
             boolean saveLocation,
             String recordFile,
-            String idPrefix
+            String idPrefix,
+            String punishmentMode,
+            String punishmentKey,
+            int punishmentWindowDays,
+            List<String> punishmentDurations,
+            String severityBoostIfMaxDurationAtLeast,
+            String banReason
     ) {
     }
 
@@ -134,5 +180,31 @@ public final class ReportCategoryConfig {
         }
 
         return builder.toString();
+    }
+
+    private static String blankToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.isBlank() ? null : value;
+    }
+
+    private static @NotNull String defaultPunishmentMode(@NotNull String actionKey) {
+        String lower = actionKey.toLowerCase(java.util.Locale.ROOT);
+        if (lower.startsWith("chat_")) {
+            return "MUTE";
+        }
+        return "BAN";
+    }
+
+    private static @NotNull String normalizeMode(String mode, @NotNull String actionKey) {
+        if (mode == null || mode.isBlank()) {
+            return defaultPunishmentMode(actionKey);
+        }
+        String upper = mode.trim().toUpperCase(java.util.Locale.ROOT);
+        if ("MUTE".equals(upper) || "BAN".equals(upper)) {
+            return upper;
+        }
+        return defaultPunishmentMode(actionKey);
     }
 }
